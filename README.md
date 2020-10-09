@@ -1,7 +1,5 @@
 # media_player
 
-# media_player
-
 2020/10 SZK
 
 ### sound_player
@@ -23,3 +21,9 @@ $ rosrun sound_play test.py
 opencvで動画を表示
 
 巻き戻しするとバグる(10/6現在)
+
+~~~
+$ rosrun video_player video_player_node
+# プレイヤーノード こいつにリクエストを投げる
+~~~
+

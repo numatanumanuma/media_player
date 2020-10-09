@@ -36,6 +36,7 @@ private:
     std::string window_name_;
 
     int command_;
+    std::string file_name_msg_;
 
     void startCapturing();
     void capture();

@@ -31,6 +31,7 @@ void VideoPlayerNode::msgCallback(const video_player_msgs::VideoRequest::ConstPt
     int8 PLAY_RESTART = 3
     */
     command_ = msg->command;
+    file_name_msg_ = msg->arg;
     ROS_INFO("Get Request!");
     if (command_ == -1)
         command_ = 4;
@@ -56,7 +57,7 @@ void VideoPlayerNode::msgCallback(const video_player_msgs::VideoRequest::ConstPt
             play();
             break;
         case 4:
-            setVideo(msg->arg);
+            setVideo(file_name_msg_);
             ROS_INFO("Set Video");
             break;
         default:
@@ -84,6 +85,10 @@ void VideoPlayerNode::startCapturing(){
 }
 
 void VideoPlayerNode::setVideo(std::string file_name) {
+    if (file_name == ""){
+        ROS_ERROR("Not set video!!");
+        return;
+    }
     if (file_name != file_name_){
         file_name_ = file_name;
         startCapturing();
@@ -93,8 +98,7 @@ void VideoPlayerNode::setVideo(std::string file_name) {
 
 void VideoPlayerNode::play() {
     if (file_name_ == ""){
-        ROS_ERROR("Not set video!!");
-        return;
+        setVideo(file_name_msg_);
     }
     playing = true;
     capture_.set(cv::CAP_PROP_POS_FRAMES, now_frame_);
