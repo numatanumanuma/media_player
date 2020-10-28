@@ -9,6 +9,7 @@ VideoPlayerNode::VideoPlayerNode(){
     file_name_ = "";
     now_frame_ = 0;
     playing = false;
+    image_showing = false;
     now_once_ = false;
     window_name_ = "test";
     size_.width = 1920;
@@ -31,10 +32,9 @@ void VideoPlayerNode::msgCallback(const video_player_msgs::VideoRequest::ConstPt
     int8 PLAY_RESTART = 3
     */
     command_ = msg->command;
-    file_name_msg_ = msg->arg;
+    file_name_msg_ = msg->video_file;
+    image_msg_ = msg->image_file;
     ROS_INFO("Get Request!");
-    if (command_ == -1)
-        command_ = 4;
     switch (command_) {
         case 0:
             ROS_INFO("Stop Video");
@@ -57,8 +57,8 @@ void VideoPlayerNode::msgCallback(const video_player_msgs::VideoRequest::ConstPt
             play();
             break;
         case 4:
-            setVideo(file_name_msg_);
-            ROS_INFO("Set Video");
+            ROS_INFO("Show Image");
+            showImage(image_msg_);
             break;
         default:
             ROS_ERROR("set=-1,stop=0,noce=1,start=2,restart=3");
@@ -70,8 +70,8 @@ void VideoPlayerNode::msgCallback(const video_player_msgs::VideoRequest::ConstPt
 void VideoPlayerNode::timerCallback(const ros::TimerEvent&){
     if (playing) {
         capture();
-        show();
     }
+    show();
 }
 
 void VideoPlayerNode::startCapturing(){
@@ -97,31 +97,54 @@ void VideoPlayerNode::setVideo(std::string file_name) {
 }
 
 void VideoPlayerNode::play() {
+    if (!playing){
+        createWindow();
+    }
     if (file_name_ == ""){
         setVideo(file_name_msg_);
+    } else{
+        setVideo(file_name_);
     }
     playing = true;
+    image_showing = false;
     capture_.set(cv::CAP_PROP_POS_FRAMES, now_frame_);
-    // ROS_INFO("video start");
+    ROS_INFO("video start");
+}
+
+void VideoPlayerNode::showImage(std::string file_name) {
+    if (!image_showing){
+        createWindow();
+    }
+    playing = false;
+    image_showing = true;
+    image_ = cv::imread(file_name);
 }
 
 void VideoPlayerNode::stop() {
     if (playing){
         now_frame_ = (int)capture_.get(cv::CAP_PROP_POS_FRAMES); // フレームの位置を取得
+        playing = false;
         cv::destroyWindow(window_name_);
         cv::waitKey(1);
-        playing = false;
-        // ROS_INFO("video stop");
     }
+    if (image_showing){
+        image_showing = false;
+        cv::destroyWindow(window_name_);
+        cv::waitKey(1);
+    }
+    // ROS_INFO("video stop");
 }
 
 void VideoPlayerNode::rewind() {
     now_frame_ = 0;
     capture_.set(cv::CAP_PROP_POS_FRAMES, 0);
-    // ROS_INFO("video rewind");
+    ROS_INFO("video rewind");
 }
 
 void VideoPlayerNode::capture(){
+    if (!playing){
+        return;
+    }
     capture_ >> frame_;
     if (frame_.empty()) {
         rewind();
@@ -131,8 +154,26 @@ void VideoPlayerNode::capture(){
 }
 
 void VideoPlayerNode::show(){
-    cv::imshow( window_name_, frame_);
-    cv::waitKey(1);
+    if (playing) {
+        if (frame_.empty() == true) {
+            return;
+	    }
+        cv::imshow( window_name_, frame_);
+    }
+    if (image_showing) {
+        if (image_.empty() == true) {
+            return;
+	    }
+        cv::imshow( window_name_, image_);
+    }
+    cv::waitKey(5);
+}
+
+    
+void VideoPlayerNode::createWindow(){
+    cv::namedWindow(window_name_, 0);
+    // cv::moveWindow(window_name_, size_.width, 0);
+    cv::setWindowProperty(window_name_, CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
 }
 
 int main(int argc, char **argv)

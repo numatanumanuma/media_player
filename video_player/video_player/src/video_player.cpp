@@ -9,6 +9,7 @@ VideoPlayer::VideoPlayer(){
 
     now_once_ = true;
     file_name_ = "";
+    image_name_ = "";
 }
 
 VideoPlayer::~VideoPlayer(){
@@ -21,7 +22,6 @@ void VideoPlayer::timerCallback(const ros::TimerEvent&){
 
 void VideoPlayer::setVideo(std::string file_name) {
     file_name_ = file_name;
-    command_ = -1;
     ROS_INFO("video info");
 }
 
@@ -45,6 +45,12 @@ void VideoPlayer::restart() {
     ROS_INFO("restart");
 }
 
+void VideoPlayer::showImage(std::string file_name) {
+    command_ = 4;
+    image_name_ = file_name;
+    publishGoal();
+    ROS_INFO("show image");
+}
 
 void VideoPlayer::cancel() {
     command_ = 0;
@@ -67,7 +73,8 @@ void VideoPlayer::publishGoal() {
     }
     video_player_msgs::VideoRequest request;
     request.command = command_;
-    request.arg = file_name_;
+    request.video_file = file_name_;
+    request.image_file = image_name_;
     request_pub_.publish(request);
     ros::Rate loop_rate(10);
     loop_rate.sleep(); //publishしたあと少し待たないとバグる

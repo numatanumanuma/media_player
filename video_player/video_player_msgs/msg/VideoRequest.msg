@@ -1,3 +1,4 @@
 int8 video
 int8 command
-string arg
+string video_file
+string image_file

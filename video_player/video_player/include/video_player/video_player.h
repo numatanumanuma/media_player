@@ -13,9 +13,11 @@ public:
     void play();
     void playOnce();
     void restart();
+    void showImage(std::string file_name);
     void cancel();
 
     bool playing;
+    bool image_showing;
    
 private:
     ros::Timer timer_;
@@ -24,6 +26,7 @@ private:
     void publishGoal();
 
     std::string file_name_;
+    std::string image_name_;
     bool now_once_;
     int command_;
 };

@@ -15,10 +15,12 @@ public:
     void timerCallback(const ros::TimerEvent&);
     void setVideo(std::string file_name);
     void play();
+    void showImage(std::string file_name);
     void stop();
     void rewind();
     
     bool playing;
+    bool image_showing;
    
 private:
     ros::Timer timer_;
@@ -35,12 +37,16 @@ private:
     cv::Size size_;
     std::string window_name_;
 
+    cv::Mat	image_;
+
     int command_;
     std::string file_name_msg_;
+    std::string image_msg_;
 
     void startCapturing();
     void capture();
     void show();
+    void createWindow();
 
 };
 
