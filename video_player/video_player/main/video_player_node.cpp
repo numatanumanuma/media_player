@@ -1,7 +1,5 @@
 #include "video_player/video_player_node.h"
 
-#include "video_player/video_player_node.h"
-
 VideoPlayerNode::VideoPlayerNode(){
     ros::NodeHandle nh_private("~");
     timer_ = nh_.createTimer(ros::Duration(0.05), &VideoPlayerNode::timerCallback, this);
