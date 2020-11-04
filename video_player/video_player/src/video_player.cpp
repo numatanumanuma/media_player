@@ -67,8 +67,8 @@ void VideoPlayer::cancel() {
     int8 PLAY_RESTART = 3
 */
 void VideoPlayer::publishGoal() {
-    if (file_name_.length() <= 0) {
-        ROS_ERROR("not set Video file!");
+    if (file_name_.length() <= 0 && image_name_.length() <= 0) {
+        ROS_ERROR("not set file!");
         return;
     }
     video_player_msgs::VideoRequest request;
